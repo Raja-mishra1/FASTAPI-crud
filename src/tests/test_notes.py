@@ -41,3 +41,19 @@ def test_read_note(test_app, monkeypatch):
 def test_create_note_invalid_json(test_app):
     response = test_app.post("/notes/", data=json.dumps({"title": "something"}))
     assert response.status_code == 422
+    
+    
+def test_read_all_notes(test_app, monkeypatch):
+    test_data = [
+        {"title": "something", "description": "something else", "id": 1},
+        {"title": "someone", "description": "someone else", "id": 2},
+    ]
+
+    async def mock_get_all():
+        return test_data
+
+    monkeypatch.setattr(crud, "get_all", mock_get_all)
+
+    response = test_app.get("/notes/")
+    assert response.status_code == 200
+    assert response.json() == test_data
